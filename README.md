@@ -24,7 +24,7 @@ This repository contains source code and documentation. Clinical reports and wor
 3. Add reviewed VBA source files to `vba/`.
 4. Test changes in a backup copy of the workbook before using them in the clinic.
 
-**Status:** Repository scaffold only. No working queries or macros have been imported or tested yet.
+**Status:** Source files imported. See [import status](docs/IMPORT_STATUS.md) for source dates, revisions, and validation limits. Excel execution has not been tested.
 
 ## Data handling
 
