@@ -1,0 +1,29 @@
+# Real workbooks and report exports
+*.xlsx
+*.xlsm
+*.xlsb
+*.xls
+*.csv
+*.tsv
+*.pdf
+*.zip
+*.log
+*.etl
+*.png
+*.jpg
+*.jpeg
+*.frm
+*.frx
+
+# Local data, credentials, and temporary files
+/data/
+/reports/
+/backups/
+/private/
+/local/
+.env
+.env.*
+~$*
+*.tmp
+.DS_Store
+Thumbs.db
