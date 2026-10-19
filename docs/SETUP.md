@@ -35,4 +35,4 @@ For a new query, use **Data → Get Data → From Other Sources → Blank Query*
 - Test buttons and worksheet events in the test workbook.
 - Compare results before moving the reviewed change into the working workbook.
 
-This repository currently supplies documentation and folders only. It does not yet contain executable queries or VBA modules.
+Source files are now available. See [import status](IMPORT_STATUS.md) before choosing revisions or applying patch fragments.
