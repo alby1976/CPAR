@@ -1,4 +1,4 @@
-# Excel setup
+# A Dummies Guide to Setting Up the CPAR Workbook
 
 ## 1. Make a working copy
 
@@ -36,3 +36,16 @@ For a new query, use **Data → Get Data → From Other Sources → Blank Query*
 - Compare results before moving the reviewed change into the working workbook.
 
 Source files are now available. See [import status](IMPORT_STATUS.md) before choosing revisions or applying patch fragments.
+
+## Set up a clinic template without changing code
+
+1. Read README inside Excel.
+2. Enter the clinic root on Folder_Config.
+3. Add complete active panel/folder mappings on Doctor_Config.
+4. Add three required report types for each panel on Report_Expectations.
+5. Use the workbook’s Setup_Checklist and Dashboard setup checks.
+6. Validate compatible fictional reports before using clinic reports.
+
+A blank/unavailable root gives a setup error. Duplicate active panel IDs or folder names also give an error. Example ignore rules and the optional historical date filter are disabled by default in the reusable template.
+
+For detailed steps and status examples, use [the user manual](AHS_CPAR_User_Manual.md).

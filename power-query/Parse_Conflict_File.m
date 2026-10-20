@@ -83,9 +83,9 @@ let
     //
     // Makes these equivalent:
     //
-    //   Dr. Justine Fong
-    //   Dr Justine Fong
-    //   DR. JUSTINE FONG
+    // Provider example identifiers removed.
+    // Provider example identifiers removed.
+    // Provider example identifiers removed.
     //
     // ============================================================
     NormalizeDoctorName =
@@ -223,7 +223,7 @@ let
     //
     // Example:
     //
-    // Panel ID: 33097 Name: Dr. Amy Leung
+    // Provider example identifiers removed.
     // ============================================================
     PanelIndex =
         List.PositionOf(

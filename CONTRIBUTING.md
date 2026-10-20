@@ -1,4 +1,4 @@
-# Contributing
+# A Dummies Guide to Contributing Changes
 
 1. Create a branch describing the change, such as `fix/masterkey-copy`.
 2. Export only the source files affected by the change.

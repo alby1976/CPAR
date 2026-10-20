@@ -1,4 +1,26 @@
-# CPAR Power Query files — detailed documentation
+# A Dummies Guide to Understanding the CPAR Power Queries
+
+## Start here: what is a query?
+
+A query is a saved set of instructions that reads data and prepares a result. **Refresh** runs those instructions again. **M** is the language used to write them.
+
+### Read the processing flow in plain language
+
+1. Staff or VBA record an action in the Excel log table.
+2. Processed_Log cleans that log.
+3. Processed_Records combines manual actions with eligible automatic exclusions.
+4. Final_Worklist matches the event’s RecordID and removes completed/ignored events.
+
+The patient/panel key (MasterKey) is separate from the event key (RecordID). Completing one event must not complete every event for that patient.
+
+### Before you paste code
+
+- A **complete query** can replace the named query’s full Advanced Editor contents.
+- A **patch fragment** describes a small edit; it cannot run by itself.
+- Keep Processed_Log connection-only. Do not load it over its own input table.
+
+## Technical reference
+
 
 ## Scope
 
@@ -6,20 +28,14 @@ These notes explain **three supplied files**, not a full reconstruction of every
 
 ## Data flow
 
-```text
-tblProcessedLog (Excel table filled by VBA DONE / IGNORE)
-    |
-    v
-Processed_Log (reads and cleans manual log)
-    |
-    v
-Processed_Records (existing query: manual + automatic IGNORE)
-    |
-    v
-Final_Worklist (join on RecordID; hide DONE / IGNORE)
-
-Actionable_Current_Events -----------------------> Final_Worklist
-Master_Patient_List --(MasterKey date lookup)---> Final_Worklist
+```mermaid
+flowchart TD
+  L["Manual Excel log"] --> P["Processed_Log"]
+  P --> R["Processed_Records"]
+  A["Automatic ignore records"] --> R
+  R --> W["Final_Worklist by RecordID"]
+  C["Current source events"] --> W
+  M["Master data by MasterKey"] --> W
 ```
 
 **RecordID** identifies an individual event and is used to apply DONE/IGNORE status. **MasterKey** identifies a patient/panel and is used for master record lookups. Multiple events can share one MasterKey.

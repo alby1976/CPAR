@@ -5,21 +5,7 @@ let
 
     Manual0 = Processed_Log,
 
-    OutputColumns =
-        {
-            "RecordID",
-            "MasterKey",
-            "PanelID",
-            "Doctor",
-            "PatientID",
-            "Source",
-            "EventDate",
-            "Status",
-            "DateStarted",
-            "DateProcessed",
-            "ActionTaken",
-            "Notes"
-        },
+    OutputColumns = {"RecordID", "MasterKey", "PanelID", "Doctor", "PatientID", "Source", "EventDate", "DateProcessed", "Status", "DateStarted", "ActionTaken", "Notes"},
 
     Manual =
         Table.SelectColumns(
