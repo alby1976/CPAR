@@ -45,6 +45,6 @@ If this is your first time, read the guides in this order:
 3. [How to understand the three reports](docs/Understanding_CPAR_Reports.md).
 4. [Why reconciliation matters under PCPCM](docs/PCPCM_and_CPAR_Reconciliation.md).
 
-The cleaned clinic template is distributed separately from Git source. It includes configurable folders/providers, a setup checklist, and a PCPCM guide. Its parsers require compatible report layouts; different EMR exports may need adaptation. No real clinic records belong in this public repository.
+[Download the cleaned clinic template](templates/AHS_CPAR_Reconcilation.xlsm). This reviewed blank template is the only workbook permitted by the ignore rules. It includes configurable folders/providers, a setup checklist, and a PCPCM guide. Its parsers require compatible report layouts; different EMR exports may need adaptation. No real clinic records belong in this public repository.
 
 The template disables example ignore rules and leaves the optional historical-conflict date filter off. Receiving clinics must validate their own reports and Excel execution before routine use.

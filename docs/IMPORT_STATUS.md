@@ -23,3 +23,5 @@ A cleaned macro-enabled template now embeds the current documented VBA and 42 M 
 The template adds clinic-neutral instructions, a PCPCM_Guide sheet, setup formulas, provider-configuration validation, explicit root-folder errors, and an opt-in Apply_Conflict_Date_Filter. The template’s default FALSE retains older conflicts. It contains no real doctor or patient records. VBA compilation and live refresh remain to be tested by the receiving clinic.
 
 The original dated import notes above describe the earlier source import; they are retained as history.
+
+The reviewed blank workbook is available at `templates/AHS_CPAR_Reconcilation.xlsm`. Populated clinic copies and patient reports remain excluded.

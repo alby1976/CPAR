@@ -3,3 +3,4 @@
 *.bas text eol=crlf
 *.cls text eol=crlf
 *.md text eol=lf
+templates/*.xlsm binary
