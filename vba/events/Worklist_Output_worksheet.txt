@@ -1,0 +1,14 @@
+' Paste into the worklist WORKSHEET code window, not a standard module.
+' Keep only one Option Explicit and merge with any existing event procedure.
+Option Explicit
+
+Private mUpdatingColumns As Boolean
+
+Private Sub Worksheet_Calculate()
+    If mUpdatingColumns Then Exit Sub
+    On Error GoTo CleanUp
+    mUpdatingColumns = True
+    UpdateWorklistColumns
+CleanUp:
+    mUpdatingColumns = False
+End Sub
