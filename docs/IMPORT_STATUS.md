@@ -15,3 +15,13 @@ Imported on October 19, 2026.
 These sources have different dates. This import preserves them without claiming that the old workbook contains the later query changes. The documented VBA module was imported from its separate source package; embedded workbook VBA was not separately exported. The original workbook retains that embedded VBA unchanged.
 
 No macros were executed and no Power Query refresh was run. Excel import, VBA compilation, and refresh validation remain necessary before clinical use. The original Excel workbook was not modified.
+
+## Reusable clinic template update
+
+A cleaned macro-enabled template now embeds the current documented VBA and 42 M definitions, including the newer Processed_Log and processed-record metadata update. It preserves event-level RecordID matching.
+
+The template adds clinic-neutral instructions, a PCPCM_Guide sheet, setup formulas, provider-configuration validation, explicit root-folder errors, and an opt-in Apply_Conflict_Date_Filter. The template’s default FALSE retains older conflicts. It contains no real doctor or patient records. VBA compilation and live refresh remain to be tested by the receiving clinic.
+
+The original dated import notes above describe the earlier source import; they are retained as history.
+
+The reviewed blank workbook is available at `templates/AHS_CPAR_Reconcilation.xlsm`. Populated clinic copies and patient reports remain excluded.

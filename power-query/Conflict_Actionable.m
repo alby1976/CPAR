@@ -1,4 +1,6 @@
 let
+    // Default FALSE: retain older conflicts until the clinic opts into this rule.
+    ApplyHistoricalFilter = List.Contains({"TRUE", "YES", "1"}, Text.Upper(Text.Trim(try ConfigValue("Apply_Conflict_Date_Filter") otherwise "FALSE"))),
     Source =
         Table.SelectRows(
             Standardize_Conflicts,
@@ -45,7 +47,7 @@ let
     KeepActionable =
         Table.SelectRows(
             Rule,
-            each [ConflictRule] <> "OLD_CONFLICT"
+            each not ApplyHistoricalFilter or [ConflictRule] <> "OLD_CONFLICT"
         ),
 
     AddRecordID =

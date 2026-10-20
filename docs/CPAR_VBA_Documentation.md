@@ -1,4 +1,24 @@
-# CPAR Worklist Actions — VBA module documentation
+# A Dummies Guide to Using the CPAR VBA Buttons
+
+## Start here: what is VBA?
+
+VBA is the small program behind the workbook’s buttons. A button records a workflow action; it does not change the patient’s EMR or CPAR record.
+
+### Your first practice task
+
+1. Use a separate workbook containing fictional records only.
+2. Click one cell in a worklist data row.
+3. Click **Mark Done**.
+4. Check Processed_Log for the same RecordID and copied MasterKey.
+5. Click **Undo Last**, then check the log again.
+6. Test **Mark Ignore** and **Refresh All** after you understand the first action.
+
+Only RecordID matches a completed event. A patient can have other open events. An empty processed log is supported; keep its table and headers.
+
+**Before routine use:** compile the code in Excel and test the buttons. The embedded workbook keeps the standard module name Module1 for compatibility; the separate .bas file declares CPAR_Worklist_Actions. Import one version only.
+
+## Technical reference
+
 
 **Source file:** `CPAR_Worklist_Actions.bas`  
 **Commented, importable version:** `CPAR_Worklist_Actions_documented.bas`  

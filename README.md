@@ -1,4 +1,4 @@
-# CPAR report tracker
+# CPAR Clinic Reconciliation Toolkit
 
 Power Query M queries and Excel VBA for a local CPAR report-processing workflow.
 
@@ -35,3 +35,16 @@ The ignore rules help exclude common data files but cannot detect sensitive info
 ## Changes
 
 Use a separate branch for each change, describe its purpose, and record how it was checked. Keep exported source files synchronized with the workbook after testing.
+
+## A Dummies Guide to Getting Started
+
+If this is your first time, read the guides in this order:
+
+1. [What the project does](docs/CPAR_Project_Description.md).
+2. [How to use the workbook](docs/AHS_CPAR_User_Manual.md).
+3. [How to understand the three reports](docs/Understanding_CPAR_Reports.md).
+4. [Why reconciliation matters under PCPCM](docs/PCPCM_and_CPAR_Reconciliation.md).
+
+[Download the cleaned clinic template](templates/AHS_CPAR_Reconcilation.xlsm). This reviewed blank template is the only workbook permitted by the ignore rules. It includes configurable folders/providers, a setup checklist, and a PCPCM guide. Its parsers require compatible report layouts; different EMR exports may need adaptation. No real clinic records belong in this public repository.
+
+The template disables example ignore rules and leaves the optional historical-conflict date filter off. Receiving clinics must validate their own reports and Excel execution before routine use.

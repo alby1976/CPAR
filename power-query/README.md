@@ -1,4 +1,4 @@
-# Power Query source
+# A Dummies Guide to the Power Query Folder
 
 Save each Excel query as a separate `.m` file with the exact query name, for example `Final_Worklist.m`.
 

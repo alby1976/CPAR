@@ -1,4 +1,4 @@
-# VBA source
+# A Dummies Guide to the VBA Folder
 
 Store exported standard modules as `.bas` and class modules as `.cls`. Document the target worksheet for worksheet event code and the target workbook for `ThisWorkbook` code.
 

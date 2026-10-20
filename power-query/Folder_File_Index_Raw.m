@@ -45,13 +45,10 @@ let
 
     Root0 =
         if Table.RowCount(RootMatch) = 0 then
-            error "Missing AHS_Root_Folder in tblFolderConfig"
-        else
-            Text.Trim(
-                Text.From(
-                    RootMatch{0}[Value]
-                )
-            ),
+            error "Clinic setup required: add AHS_Root_Folder to tblFolderConfig."
+        else if RootMatch{0}[Value] = null or Text.Trim(Text.From(RootMatch{0}[Value])) = "" then
+            error "Clinic setup required: enter AHS_Root_Folder on Folder_Config before refreshing."
+        else Text.Trim(Text.From(RootMatch{0}[Value])),
 
     NormalizedRoot =
         Text.Replace(
@@ -140,10 +137,8 @@ let
     // 3. GET TOP-LEVEL DOCTOR FOLDERS
     // ============================================================
 
-    RootContents =
-        ReadFolder(
-            Root
-        ),
+    RootAttempt = try Folder.Contents(Root),
+    RootContents = if RootAttempt[HasError] then error "Clinic report folder unavailable: verify Folder_Config, network access and permissions." else RootAttempt[Value],
 
     RootFolders =
         Table.SelectRows(

@@ -27,3 +27,6 @@
 *.tmp
 .DS_Store
 Thumbs.db
+
+# Reviewed blank template only; populated workbooks remain ignored.
+!/templates/AHS_CPAR_Reconcilation.xlsm

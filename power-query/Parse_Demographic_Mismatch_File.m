@@ -63,12 +63,12 @@ let
     // ============================================================
     // 3. DOCTOR NAME NORMALIZER
     //
-    // Dr Justine Fong
-    // Dr. Justine Fong
+    // Provider example identifiers removed.
+    // Provider example identifiers removed.
     //
     // both become:
     //
-    // DR JUSTINE FONG
+    // Provider example identifiers removed.
     // ============================================================
     NormalizeDoctorName =
         (Value as nullable text) as nullable text =>
@@ -199,7 +199,7 @@ let
     //
     // Example:
     //
-    // Panel ID: 39815 Name: Dr Justine Fong
+    // Provider example identifiers removed.
     // ============================================================
     PanelIndex =
         List.PositionOf(
