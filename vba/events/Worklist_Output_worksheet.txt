@@ -1,5 +1,5 @@
-' Paste into the worklist WORKSHEET code window, not a standard module.
-' Keep only one Option Explicit and merge with any existing event procedure.
+' Paste into the worklist worksheet code window.
+' Merge with existing event procedures; do not create duplicates.
 Option Explicit
 
 Private mUpdatingColumns As Boolean
@@ -11,4 +11,41 @@ Private Sub Worksheet_Calculate()
     UpdateWorklistColumns
 CleanUp:
     mUpdatingColumns = False
+End Sub
+
+Private Sub Worksheet_Change(ByVal Target As Range)
+    Dim lo As ListObject, watched As Range
+    Dim i As Long, oldEvents As Boolean
+    Dim errorText As String
+
+    oldEvents = Application.EnableEvents
+    On Error GoTo Failed
+    Set lo = Me.ListObjects("tblFinalWorklist")
+    If lo.DataBodyRange Is Nothing Then Exit Sub
+
+    ' Only changes in actively filtered columns require reapplication.
+    For i = 1 To lo.ListColumns.Count
+        If lo.AutoFilter.Filters(i).On Then
+            If watched Is Nothing Then
+                Set watched = lo.ListColumns(i).DataBodyRange
+            Else
+                Set watched = Application.Union(watched, _
+                    lo.ListColumns(i).DataBodyRange)
+            End If
+        End If
+    Next i
+    If watched Is Nothing Then Exit Sub
+    If Application.Intersect(Target, watched) Is Nothing Then Exit Sub
+
+    Application.EnableEvents = False
+    lo.AutoFilter.ApplyFilter
+    UpdateWorklistColumns
+CleanExit:
+    Application.EnableEvents = oldEvents
+    Exit Sub
+Failed:
+    errorText = Err.Description
+    Application.EnableEvents = oldEvents
+    MsgBox "The edit may already be saved, but the filter could not be updated: " & _
+           errorText, vbExclamation
 End Sub
