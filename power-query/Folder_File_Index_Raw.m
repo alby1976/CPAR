@@ -140,6 +140,14 @@ let
     RootAttempt = try Folder.Contents(Root),
     RootContents = if RootAttempt[HasError] then error "Clinic report folder unavailable: verify Folder_Config, network access and permissions." else RootAttempt[Value],
 
+    // Do not treat the configured archive directory as a doctor folder.
+    ArchiveMatch = Table.SelectRows(FolderConfig,
+        each Text.Upper(Text.Trim(Text.From([Setting]))) = "ARCHIVE_FOLDER"),
+    ArchivePath = if Table.RowCount(ArchiveMatch) <> 1 then ""
+        else if ArchiveMatch{0}[Value] = null then ""
+        else Text.Upper(Text.TrimEnd(Text.Replace(
+            Text.Trim(Text.From(ArchiveMatch{0}[Value])), "/", "\"), {"\"})),
+
     RootFolders =
         Table.SelectRows(
             RootContents,
@@ -147,6 +155,7 @@ let
                 IsDirectory(
                     [Attributes]
                 )
+                and Text.Upper(Text.TrimEnd(Root & [Name], {"\"})) <> ArchivePath
         ),
 
     DoctorFolders0 =

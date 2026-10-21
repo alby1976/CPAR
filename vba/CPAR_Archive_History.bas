@@ -85,11 +85,8 @@ Public Sub ArchiveOldHistory()
     If MsgBox("Archive " & n & " log row(s) older than " & Format$(cutoff, "yyyy-mm-dd") & _
         "? A separate archive and full workbook backup will be saved first. Compact keys stay in this workbook.", _
         vbYesNo + vbQuestion, "Archive old history") <> vbYes Then Exit Sub
-    With Application.FileDialog(msoFileDialogFolderPicker)
-        .Title = "Choose a secure local archive folder"
-        If .Show <> -1 Then Exit Sub
-        prefix = .SelectedItems(1) & Application.PathSeparator & "CPAR_" & Format$(Now, "yyyymmdd_hhnnss")
-    End With
+    prefix = ConfiguredArchiveFolder() & Application.PathSeparator & _
+        "CPAR_" & Format$(Now, "yyyymmdd_hhnnss")
     path = prefix & "_history.xlsx"
     backup = prefix & "_before_archive.xlsm"
     If Len(Dir$(path)) > 0 Or Len(Dir$(backup)) > 0 Then _
@@ -174,4 +171,30 @@ Private Function ArchiveTable(ByVal tableName As String) As ListObject
             End If
         Next lo
     Next ws
+End Function
+
+Private Function ConfiguredArchiveFolder() As String
+    Dim config As ListObject, i As Long, count As Long
+    Dim folder As String, fs As Object
+    Set config = ArchiveTable("tblFolderConfig")
+    If config Is Nothing Then Err.Raise vbObjectError + 1220, , "Missing tblFolderConfig."
+    If config.DataBodyRange Is Nothing Then Err.Raise vbObjectError + 1221, , "Enter Archive_Folder on Folder_Config."
+    For i = 1 To config.ListRows.Count
+        If StrComp(Trim$(CStr(config.DataBodyRange.Cells(i, _
+            config.ListColumns("Setting").Index).Value2)), "Archive_Folder", vbTextCompare) = 0 Then
+            count = count + 1
+            folder = Trim$(CStr(config.DataBodyRange.Cells(i, config.ListColumns("Value").Index).Value2))
+        End If
+    Next i
+    If count <> 1 Or Len(folder) = 0 Then Err.Raise vbObjectError + 1222, , _
+        "Enter exactly one nonblank Archive_Folder setting on Folder_Config."
+    folder = Replace(folder, "/", "\")
+    If Not ((Len(folder) >= 3 And Mid$(folder, 2, 2) = ":\") Or Left$(folder, 2) = "\\") Then _
+        Err.Raise vbObjectError + 1223, , "Archive_Folder must be an absolute drive or UNC path."
+    Set fs = CreateObject("Scripting.FileSystemObject")
+    If Not fs.FolderExists(folder) Then Err.Raise vbObjectError + 1224, , _
+        "Archive_Folder does not exist or is unavailable. Create it and check access."
+    folder = fs.GetAbsolutePathName(folder)
+    If Right$(folder, 1) = "\" Then folder = Left$(folder, Len(folder) - 1)
+    ConfiguredArchiveFolder = folder
 End Function

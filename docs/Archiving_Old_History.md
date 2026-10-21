@@ -21,19 +21,21 @@ Blank or invalid dates, open statuses and still-loaded IDs stay in the log. Even
 4. Replace Processed_Log with [this version](../power-query/Processed_Log.m). It reads both the active log and compact archive keys. Do not load it back onto either input table. Downstream Processed_Records/Final_Worklist keep their existing connections to it.
 5. Create [Archive_Loaded_RecordIDs](../power-query/Archive_Loaded_RecordIDs.m). Load it to a dedicated sheet and name its output table **tblArchiveLoadedRecordIDs**. Leave its READY marker and timestamp untouched.
 6. Import [CPAR_Archive_History.bas](../vba/CPAR_Archive_History.bas) through the VBA editor's File > Import File. Choose Debug > Compile VBAProject.
-7. Assign **ArchiveOldHistory** to a Form Control button named Archive Old History.
+7. On Folder_Config, enter an existing secure archive folder in the Value cell beside Archive_Folder in tblFolderConfig. The macro finds the setting by name, even if its row moves. Both history .xlsx and backup .xlsm are saved there. Blank, duplicate, relative or unavailable settings stop archiving. Drive and UNC network paths are supported; folders are not created automatically.
+8. Replace [Folder_File_Index_Raw](../power-query/Folder_File_Index_Raw.m) with this branch's version, which excludes the configured archive folder from doctor-folder discovery.
+9. Assign **ArchiveOldHistory** to a Form Control button named Archive Old History.
 
 ## Use the button
 
 1. Finish ordinary refreshes and resolve report/folder warnings.
 2. Save the workbook locally. Click Archive Old History.
 3. The macro synchronously refreshes the archive snapshot. It refuses a cancelled, failed, empty, incomplete or stale result.
-4. Review the count and cutoff. Choose Yes to continue, then choose a secure local folder outside report input folders.
+4. Review the count and cutoff. Choose Yes to continue. The macro reads Archive_Folder from tblFolderConfig on Folder_Config; no folder picker is shown.
 5. The macro writes a full pre-archive workbook backup and a separate .xlsx containing all selected log columns. It closes, reopens and checks every saved data cell against the source values.
 6. It appends compact keys and saves the workbook BEFORE deleting detail rows. Then it deletes bottom-up and saves again.
 7. Keep both external files. Refresh All before continuing work. Do not use the previous action batch's Undo after archiving.
 
-Cancellation before file selection changes no log records, although the archive snapshot may have refreshed. Cleanup considers all log rows, including filtered/hidden rows; worksheet filters do not limit the archive batch.
+Declining confirmation changes no log records, although the archive snapshot may have refreshed. Cleanup considers all log rows, including filtered/hidden rows; worksheet filters do not limit the archive batch.
 
 ## What stays where?
 
