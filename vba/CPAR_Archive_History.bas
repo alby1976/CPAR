@@ -1,7 +1,7 @@
 Attribute VB_Name = "CPAR_Archive_History"
 Option Explicit
 
-Private Const KEEP_MONTHS As Long = 12
+Private Const KEEP_MONTHS As Long = 4
 
 ' Run only after installing the M queries and Processed_Log integration.
 Public Sub ArchiveOldHistory()

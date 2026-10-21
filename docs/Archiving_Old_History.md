@@ -6,7 +6,7 @@ Keep recent work in the active log. Move old detail into a separate local archiv
 
 All four conditions must hold:
 
-- DateProcessed is a valid date older than 12 months.
+- DateProcessed is a valid date older than 4 months.
 - Status is DONE, IGNORE or IGNORED.
 - RecordID is nonblank and absent from every successfully loaded standardized report, including historical reports still loaded.
 - A new archive snapshot refresh succeeds with no import errors, unmapped folders or missing expected reports.
