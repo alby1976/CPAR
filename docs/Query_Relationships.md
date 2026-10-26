@@ -2,7 +2,7 @@
 
 The workbook turns three kinds of reports into one worklist, then uses your saved decisions to keep completed events out of that worklist.
 
-This guide describes the repository queries, including the proposed archive addition in [PR #4](https://github.com/alby1976/CPAR/pull/4). The archive changes are maintained separately from this guide. Your screenshot shows the earlier main query graph; the two archive queries must be installed separately. A screenshot cannot prove that every formula in your local workbook matches the repository.
+This guide describes the repository queries, including the archive addition merged in [PR #4](https://github.com/alby1976/CPAR/pull/4). Your earlier screenshot predates the archive queries; installing them locally requires the archive setup. A screenshot cannot prove that every formula in your local workbook matches the repository. The uploaded October 26 connection export has not yet been compared with this guide.
 
 ## How to read the arrows
 
@@ -136,8 +136,8 @@ The table below lists immediate upstream queries/functions found in executable M
 |---|---|---|
 | [Actionable_Current_Events](../power-query/Actionable_Current_Events.m) | `ApplyIgnoreRules`, `Current_Source_Events` | Keep current events with no matching ignore rule. |
 | [ApplyIgnoreRules](../power-query/ApplyIgnoreRules.m) | `Ignore_Rules` | Function: evaluate a source event against Ignore_Rules. |
-| [Archive_Loaded_RecordIDs](https://github.com/alby1976/CPAR/blob/feat/archive-processed-history/power-query/Archive_Loaded_RecordIDs.m) | `File_Errors`, `File_Import_Log`, `Missing_Expected_Reports`, `Standardize_CPAR`, `Standardize_Conflicts`, `Standardize_Demographic_Mismatch`, `Unmapped_Doctor_Files` | Build all loaded event IDs with a fresh READY marker; block on import, mapping or missing-report problems. |
-| [Archived_Processed_Keys](https://github.com/alby1976/CPAR/blob/feat/archive-processed-history/power-query/Archived_Processed_Keys.m) | None; see external inputs or function arguments | Read permanent compact archived RecordID/Status/DateProcessed input. |
+| [Archive_Loaded_RecordIDs](../power-query/Archive_Loaded_RecordIDs.m) | `File_Errors`, `File_Import_Log`, `Missing_Expected_Reports`, `Standardize_CPAR`, `Standardize_Conflicts`, `Standardize_Demographic_Mismatch`, `Unmapped_Doctor_Files` | Build all loaded event IDs with a fresh READY marker; block on import, mapping or missing-report problems. |
+| [Archived_Processed_Keys](../power-query/Archived_Processed_Keys.m) | None; see external inputs or function arguments | Read permanent compact archived RecordID/Status/DateProcessed input. |
 | [Candidate_File_Content](../power-query/Candidate_File_Content.m) | `Candidate_File_Index`, `Folder_File_Index_Raw` | Attach the original binary Content to candidate files by folder path and filename. |
 | [Candidate_File_Index](../power-query/Candidate_File_Index.m) | `Folder_File_Index` | Select import candidates and classify file metadata/duplicates before parsing. |
 | [ConfigValue](../power-query/ConfigValue.m) | None; see external inputs or function arguments | Function: read a setting from tblFolderConfig. |
@@ -153,7 +153,7 @@ The table below lists immediate upstream queries/functions found in executable M
 | [Folder_Conflicts](../power-query/Folder_Conflicts.m) | `Folder_File_Index` | Conflict-only view of the mapped file index. |
 | [Folder_Demographic_Mismatch](../power-query/Folder_Demographic_Mismatch.m) | `Folder_File_Index` | Demographic-only view of the mapped file index. |
 | [Folder_File_Index](../power-query/Folder_File_Index.m) | `Doctor_Config`, `Folder_File_Index_Raw` | Attach mapped provider/panel information to discovered files. |
-| [Folder_File_Index_Raw](https://github.com/alby1976/CPAR/blob/feat/archive-processed-history/power-query/Folder_File_Index_Raw.m) | None; see external inputs or function arguments | Read the configured report root and supported report subfolders; exclude the configured archive directory. |
+| [Folder_File_Index_Raw](../power-query/Folder_File_Index_Raw.m) | None; see external inputs or function arguments | Read the configured report root and supported report subfolders; exclude the configured archive directory. |
 | [Folder_Metrics](../power-query/Folder_Metrics.m) | `Folder_File_Index` | Metrics file-index view retained in the source; not part of the three-report reconciliation worklist. |
 | [Ignore_Rules](../power-query/Ignore_Rules.m) | None; see external inputs or function arguments | Read and normalize configurable ignore rules. |
 | [Ignored_Records](../power-query/Ignored_Records.m) | `ApplyIgnoreRules`, `Current_Source_Events` | Return current events that match ignore rules. |
@@ -168,7 +168,7 @@ The table below lists immediate upstream queries/functions found in executable M
 | [Parsed_File_Cache](../power-query/Parsed_File_Cache.m) | `Candidate_File_Content`, `Parse_CPAR_File`, `Parse_Conflict_File`, `Parse_Demographic_Mismatch_File`, `Schema_Validation` | Call the appropriate parser and schema checks; retain parsed tables and import diagnostics. |
 | [Previous_Report_Index](../power-query/Previous_Report_Index.m) | `Latest_Report_Index` | Select rank 2 from the ranked file index; this is not a stored snapshot of the previous refresh. |
 | [Previous_Source_Events](../power-query/Previous_Source_Events.m) | `ApplyIgnoreRules`, `Conflict_Actionable`, `Previous_Report_Index`, `Standardize_CPAR`, `Standardize_Demographic_Mismatch` | Build comparable events from second-ranked reports and apply ignore rules. |
-| [Processed_Log](https://github.com/alby1976/CPAR/blob/feat/archive-processed-history/power-query/Processed_Log.m) | `Archived_Processed_Keys` | Read detailed manual history plus archived compact keys; normalize identifiers, status and dates. |
+| [Processed_Log](../power-query/Processed_Log.m) | `Archived_Processed_Keys` | Read detailed manual history plus archived compact keys; normalize identifiers, status and dates. |
 | [Processed_Records](../power-query/Processed_Records.m) | `Ignore_Rules`, `Ignored_Records`, `Processed_Log` | Combine manual/archived processing decisions with permitted automatic ignore decisions. |
 | [Report_Expectation_Exceptions](../power-query/Report_Expectation_Exceptions.m) | None; see external inputs or function arguments | Read exceptions to report expectations. |
 | [Report_Expectations](../power-query/Report_Expectations.m) | None; see external inputs or function arguments | Read expected report settings. |
@@ -197,7 +197,7 @@ The table below lists immediate upstream queries/functions found in executable M
 
 - [Workbook user manual](AHS_CPAR_User_Manual.md)
 - [Power Query technical guide](CPAR_PowerQuery_Documentation.md)
-- [Archiving old history](https://github.com/alby1976/CPAR/blob/feat/archive-processed-history/docs/Archiving_Old_History.md)
+- [Archiving old history](Archiving_Old_History.md)
 - [Automatic worklist columns](Worklist_Column_Visibility.md)
 - [Automatic filter reapplication](Automatic_Filter_Reapply.md)
 
