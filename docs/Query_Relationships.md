@@ -2,7 +2,24 @@
 
 The workbook turns three kinds of reports into one worklist, then uses your saved decisions to keep completed events out of that worklist.
 
-This guide describes the repository queries, including the archive addition merged in [PR #4](https://github.com/alby1976/CPAR/pull/4). Your earlier screenshot predates the archive queries; installing them locally requires the archive setup. A screenshot cannot prove that every formula in your local workbook matches the repository. The uploaded October 26 connection export has not yet been compared with this guide.
+This guide describes the repository queries, including the archive addition merged in [PR #4](https://github.com/alby1976/CPAR/pull/4). Your earlier screenshot predates the archive queries; installing them locally requires the archive setup. A screenshot cannot prove that every formula in your local workbook matches the repository. The October 26 export was compared with this guide. The workbook's direct query relationships match the diagrams and dependency table except that its Conflict_Actionable does not reference ConfigValue. [PR #6](https://github.com/alby1976/CPAR/pull/6) proposes the seven changed scripts while retaining the configurable version of that conflict query.
+
+## What changed in your October 26 export
+
+The ZIP has 44 connection exports and 44 consistent embedded query definitions. Excel's connection name `Query - Final_Worklist1` points to the query `Final_Worklist`; it is not a second M query.
+
+| Exported query | Difference that affects the flow |
+|---|---|
+| Standardize_CPAR | Filters SENT TO CPAR to NO before the master list, archive snapshot and worklist consume it. Already-submitted rows are excluded from these downstream paths. |
+| Master_Patient_List | Uses the export's revised history and oldest-record selection logic. |
+| Standardize_Demographic_Mismatch | Comments out OriginalPatientID and Patient Id in its final selection. |
+| Final_Worklist | Changes selected fields and their order. |
+| Ignored_Records | Carries LastName and FirstName in its output. |
+| Conflict_Actionable | The export excludes OLD_CONFLICT directly and has no ConfigValue dependency; PR #6 retains the repository's opt-in setting. |
+| Archive_Loaded_RecordIDs | The export contains `eacha`, which prevents M from parsing. PR #6 retains the corrected repository version. |
+| Folder_File_Index_Raw and Doctor_Config | The export predates later repository folder and active-provider checks; PR #6 retains those newer versions. |
+
+The seven changes in PR #6 have not been run in desktop Excel. In particular, verify the effect of the CPAR filter on master history and archiving before using it with real records. The diagrams below describe the proposed repository combination, not proof of your workbook's runtime state.
 
 ## How to read the arrows
 
@@ -100,9 +117,9 @@ Processing one RecordID must not automatically process every other event with th
 
 ## 6. Check archive eligibility before removing detail
 
-Archive_Loaded_RecordIDs reads **all three standardized report histories**, not only latest/actionable events. For conflicts it generates the same MasterKey + CONFLICT + event-date RecordID form used by Conflict_Actionable, without the optional historical exclusion.
+Archive_Loaded_RecordIDs reads the three standardized report outputs, not only latest/actionable events. With the October 26 Standardize_CPAR change, those outputs exclude already-submitted CPAR rows, so its ID snapshot does not include every event in every loaded report. For conflicts it generates the same MasterKey + CONFLICT + event-date RecordID form used by Conflict_Actionable, without the optional historical exclusion.
 
-It also reads File_Errors, Unmapped_Doctor_Files, Missing_Expected_Reports and File_Import_Log. Those checks must succeed before it returns a fresh READY marker plus IDs. A failed or empty snapshot blocks the archive macro.
+It also reads File_Errors, Unmapped_Doctor_Files, Missing_Expected_Reports and File_Import_Log. Those checks must succeed before it returns a fresh READY marker plus IDs. A failed or empty snapshot blocks the archive macro, but it cannot detect valid CPAR rows excluded by Standardize_CPAR.
 
 The archive button refreshes this dedicated output synchronously, keeps still-loaded IDs, and only selects absent completed actions with DateProcessed older than **four months**. It saves and verifies external detail, saves compact keys, then deletes selected active detail. Archive_Folder in tblFolderConfig supplies the destination; the raw file index excludes the configured archive directory from doctor-folder discovery.
 
@@ -201,4 +218,4 @@ The table below lists immediate upstream queries/functions found in executable M
 - [Automatic worklist columns](Worklist_Column_Visibility.md)
 - [Automatic filter reapplication](Automatic_Filter_Reapply.md)
 
-Validation: all 44 top-level query files were inventoried, direct references were checked for cycles, and document links were checked. The diagrams summarize selected connections; the direct-dependency table provides the complete query-reference inventory. This is source inspection, not evidence of a successful live Excel refresh.
+Validation: the October 26 export's 44 query definitions were inventoried and compared by direct references with the existing guide; the export lacks the ConfigValue dependency described above. The existing source graph was checked for cycles and document links. The diagrams summarize selected connections; the direct-dependency table provides the complete query-reference inventory. This is source inspection, not evidence of a successful live Excel refresh.
