@@ -1,6 +1,6 @@
 let
     // ============================================================
-    // FOLDER_FILE_INDEX_RAW
+    // FOLDER_FILE_INDEX - FOLDER_CONFIG DIRECT
     //
     // Required doctor-folder structure:
     //
@@ -29,30 +29,34 @@ let
     // 1. GET ROOT FOLDER
     // ============================================================
 
-    FolderConfig =
-        Excel.CurrentWorkbook(){[Name="tblFolderConfig"]}[Content],
-
-    RootMatch =
-        Table.SelectRows(
-            FolderConfig,
-            each
-                Text.Upper(
-                    Text.Trim(
-                        Text.From([Setting])
-                    )
-                ) = "AHS_ROOT_FOLDER"
-        ),
-
-    Root0 =
-        if Table.RowCount(RootMatch) = 0 then
-            error "Clinic setup required: add AHS_Root_Folder to tblFolderConfig."
-        else if RootMatch{0}[Value] = null or Text.Trim(Text.From(RootMatch{0}[Value])) = "" then
-            error "Clinic setup required: enter AHS_Root_Folder on Folder_Config before refreshing."
-        else Text.Trim(Text.From(RootMatch{0}[Value])),
+    // Read Folder_Config directly from the Excel table tblFolderConfig.
+    // No Power Query parameters or VBA parameter synchronization required.
+    ConfigSource = Excel.CurrentWorkbook(),
+    ConfigMatches = Table.SelectRows(ConfigSource, each [Name] = "tblFolderConfig"),
+    ConfigTable =
+        if Table.IsEmpty(ConfigMatches) then
+            error "Missing Excel table tblFolderConfig. Check the table name on Folder_Config."
+        else
+            ConfigMatches{0}[Content],
+    ConfigWithCleanKeys = Table.TransformColumns(
+        ConfigTable,
+        {{"Setting", each if _ = null then "" else Text.Upper(Text.Trim(Text.From(_))), type text}}
+    ),
+    GetConfig = (Key as text, optional DefaultValue as nullable text) as nullable text =>
+        let
+            Rows = Table.SelectRows(ConfigWithCleanKeys, each [Setting] = Text.Upper(Key)),
+            Raw = if Table.IsEmpty(Rows) then DefaultValue else Rows{0}[Value],
+            Value = if Raw = null then DefaultValue else Text.Trim(Text.From(Raw))
+        in Value,
+    Root0 = GetConfig("AHS_Root_Folder", null),
+    CheckedRoot =
+        if Root0 = null or Root0 = "" then
+            error "Folder_Config: AHS_Root_Folder is blank or missing."
+        else Root0,
 
     NormalizedRoot =
         Text.Replace(
-            Root0,
+            CheckedRoot,
             "/",
             "\"
         ),
@@ -138,15 +142,25 @@ let
     // ============================================================
 
     RootAttempt = try Folder.Contents(Root),
-    RootContents = if RootAttempt[HasError] then error "Clinic report folder unavailable: verify Folder_Config, network access and permissions." else RootAttempt[Value],
+    RootContents =
+        if RootAttempt[HasError] then
+            error Error.Record(
+                "ClinicFolderAccess",
+                "Cannot read configured root: " & Root & " | " & RootAttempt[Error][Message],
+                RootAttempt[Error]
+            )
+        else RootAttempt[Value],
 
-    // Do not treat the configured archive directory as a doctor folder.
-    ArchiveMatch = Table.SelectRows(FolderConfig,
-        each Text.Upper(Text.Trim(Text.From([Setting]))) = "ARCHIVE_FOLDER"),
-    ArchivePath = if Table.RowCount(ArchiveMatch) <> 1 then ""
-        else if ArchiveMatch{0}[Value] = null then ""
-        else Text.Upper(Text.TrimEnd(Text.Replace(
-            Text.Trim(Text.From(ArchiveMatch{0}[Value])), "/", "\"), {"\"})),
+    // Exclude the configured archive from the list of doctor folders.
+    ArchiveRaw = GetConfig("Archive_Folder", ""),
+    ArchivePath =
+        if ArchiveRaw = null or ArchiveRaw = "" then ""
+        else Text.Upper(
+            Text.TrimEnd(
+                Text.Replace(ArchiveRaw, "/", "\"),
+                {"\"}
+            )
+        ),
 
     RootFolders =
         Table.SelectRows(
