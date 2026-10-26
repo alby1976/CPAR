@@ -2,11 +2,11 @@
 
 The workbook turns three kinds of reports into one worklist, then uses your saved decisions to keep completed events out of that worklist.
 
-This guide describes the repository queries, including the archive addition merged in [PR #4](https://github.com/alby1976/CPAR/pull/4). Your earlier screenshot predates the archive queries; installing them locally requires the archive setup. A screenshot cannot prove that every formula in your local workbook matches the repository. The October 26 export was compared with this guide. The workbook's direct query relationships match the diagrams and dependency table except that its Conflict_Actionable does not reference ConfigValue. [PR #6](https://github.com/alby1976/CPAR/pull/6) proposes the seven changed scripts while retaining the configurable version of that conflict query.
+This guide describes the repository queries, including the archive addition merged in [PR #4](https://github.com/alby1976/CPAR/pull/4). Your earlier screenshot predates the archive queries; installing them locally requires the archive setup. A screenshot cannot prove that every formula in your local workbook matches the repository. The October 26 export was compared with this guide. The workbook's direct query relationships match the diagrams and dependency table except that its Conflict_Actionable does not reference ConfigValue. [PR #6](https://github.com/alby1976/CPAR/pull/6) merged seven changed scripts while retaining the configurable version of that conflict query.
 
-## What changed in your October 26 export
+## What the October 26 export shows
 
-The ZIP has 44 connection exports and 44 consistent embedded query definitions. Excel's connection name `Query - Final_Worklist1` points to the query `Final_Worklist`; it is not a second M query.
+The ZIP has 44 connection exports and 44 consistent embedded query definitions. The later `power queries(5).zip` is byte-for-byte identical to `power queries(4).zip`, so it adds no new query relationships. Excel's connection name `Query - Final_Worklist1` points to the query `Final_Worklist`; it is not a second M query.
 
 | Exported query | Difference that affects the flow |
 |---|---|
@@ -15,11 +15,11 @@ The ZIP has 44 connection exports and 44 consistent embedded query definitions. 
 | Standardize_Demographic_Mismatch | Comments out OriginalPatientID and Patient Id in its final selection. |
 | Final_Worklist | Changes selected fields and their order. |
 | Ignored_Records | Carries LastName and FirstName in its output. |
-| Conflict_Actionable | The export excludes OLD_CONFLICT directly and has no ConfigValue dependency; PR #6 retains the repository's opt-in setting. |
-| Archive_Loaded_RecordIDs | The export contains `eacha`, which prevents M from parsing. PR #6 retains the corrected repository version. |
-| Folder_File_Index_Raw and Doctor_Config | The export predates later repository folder and active-provider checks; PR #6 retains those newer versions. |
+| Conflict_Actionable | The export excludes OLD_CONFLICT directly and has no ConfigValue dependency; the merged repository retains the repository's opt-in setting. |
+| Archive_Loaded_RecordIDs | The export contains `eacha`, which prevents M from parsing. the merged repository retains the corrected repository version. |
+| Folder_File_Index_Raw and Doctor_Config | The export predates later repository folder and active-provider checks; the merged repository retains those newer versions. |
 
-The seven changes in PR #6 have not been run in desktop Excel. In particular, verify the effect of the CPAR filter on master history and archiving before using it with real records. The diagrams below describe the proposed repository combination, not proof of your workbook's runtime state.
+The seven changes merged in PR #6 have not been tested in desktop Excel here. In particular, verify the effect of the CPAR filter on master history and archiving before using it with real records. The diagrams below describe the repository combination, not proof of your workbook's runtime state.
 
 ## How to read the arrows
 
