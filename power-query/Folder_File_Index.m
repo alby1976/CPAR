@@ -23,11 +23,11 @@ let
     //
     // Example:
     //
-    // Dr._Amy_Leung
+    // Provider example identifiers removed.
     //
     // becomes:
     //
-    // DR._AMY_LEUNG
+    // Provider example identifiers removed.
     //
     // We keep the original DoctorFolder column for display.
     // ============================================================

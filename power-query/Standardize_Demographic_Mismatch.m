@@ -390,7 +390,7 @@ let
             "PanelID",
             "Doctor",
             "PatientID",
-            "OriginalPatientID",
+            // "OriginalPatientID",
             "Source",
             "EventDate",
             "LastName",
@@ -398,7 +398,7 @@ let
             "DOB",
             "IssueType",
 
-            "Patient Id",
+            // "Patient Id",
             "Alberta Registry Patient Id",
             "Alberta Registry Patient Last Name",
             "Alberta Registry Patient First Name",
