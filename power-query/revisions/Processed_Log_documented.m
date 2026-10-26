@@ -28,9 +28,12 @@
 
 let
     // Read the Excel input table only. Never load this query back onto tblProcessedLog.
-    Source = Excel.CurrentWorkbook(){[Name="tblProcessedLog"]}[Content],
+    ActiveSource = Excel.CurrentWorkbook(){[Name="tblProcessedLog"]}[Content],
+    // Persistent compact keys keep archived decisions effective on reload.
+    // Install Archived_Processed_Keys and its input table before this version.
+    Source = Table.Combine({ActiveSource, Archived_Processed_Keys}),
     Required = {"RecordID", "Status"},
-    Missing = List.Difference(Required, Table.ColumnNames(Source)),
+    Missing = List.Difference(Required, Table.ColumnNames(ActiveSource)),
     Validated = if List.IsEmpty(Missing) then Source else error Error.Record("Missing columns", "tblProcessedLog requires RecordID and Status", Missing),
     Fields = {"RecordID", "MasterKey", "PanelID", "Doctor", "PatientID", "Source", "EventDate", "DateProcessed", "Status", "Notes", "DateStarted", "ActionTaken"},
     Selected = Table.SelectColumns(Validated, Fields, MissingField.UseNull),
