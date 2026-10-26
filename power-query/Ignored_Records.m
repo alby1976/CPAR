@@ -50,6 +50,8 @@ let
                 "PanelID",
                 "Doctor",
                 "PatientID",
+                "LastName",
+                "FirstName",
                 "Source",
                 "EventDate",
                 "RuleID",

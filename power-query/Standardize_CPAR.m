@@ -68,19 +68,27 @@ let
                 {"UNABLE_TO_SEND_REASON", type text}
             }
         ),
+    // ============================================================
+    // 4. SHOW ONLY THOSE RECORDS THAT DID NOT GET SUBMITTED TO CPAR
+    // ============================================================
+    RecordsNotSent = Table.SelectRows(
+            Types,
+            each 
+                Text.Upper([#"SENT TO CPAR"]) = "NO"
+        ),
 
     // ============================================================
-    // 4. PRESERVE ORIGINAL PHN FOR AUDIT
+    // 5. PRESERVE ORIGINAL PHN FOR AUDIT
     // ============================================================
     AddOriginalPHN =
         Table.DuplicateColumn(
-            Types,
+            RecordsNotSent,
             "PHN",
             "OriginalPHN"
         ),
 
     // ============================================================
-    // 5. CLEAN PHN AND PATIENT NAMES
+    // 6. CLEAN PHN AND PATIENT NAMES
     // ============================================================
     Clean =
         Table.TransformColumns(
@@ -118,7 +126,7 @@ let
         ),
 
     // ============================================================
-    // 6. VALIDATE CLEANED PHN
+    // 7. VALIDATE CLEANED PHN
     // ============================================================
     AddPHNValidation =
         Table.AddColumn(
@@ -136,7 +144,7 @@ let
 
 
     // ============================================================
-    // 7. CREATE PATIENT ID (12345-6789)
+    // 8. CREATE PATIENT ID (12345-6789)
     // ============================================================
     AddPatientID =
         Table.AddColumn(
@@ -151,7 +159,7 @@ let
         ),
 
     // ============================================================
-    // 7A. FORMAT ORIGINAL PHN (12345-6789 AB)
+    // 8A. FORMAT ORIGINAL PHN (12345-6789 AB)
     // ============================================================
     FormatOriginalPHN =
         Table.TransformColumns(
@@ -185,25 +193,25 @@ let
 
 
     // ============================================================
-    // 8. CREATE MASTER KEY
+    // 9. CREATE MASTER KEY
     // ============================================================
     AddMasterKey =
-        Table.AddColumn(
-            FormatOriginalPHN,
-            "MasterKey",
-            each
-                //if [PanelID] = null
+        Table.AddColumn(FormatOriginalPHN, "MasterKey", each //if [PanelID] = null
                 //    or [PatientID] = null
                 //then null
                 //else
                     Text.Trim([PanelID])
                     & "|"
-                    & [OriginalPHN],
-            type nullable text
-        ),
+                    & [OriginalPHN]
+                    & "|"
+                    & Text.Upper(Text.Trim([LAST_NAME]))
+                    & ", "
+                    & Text.Proper(Text.Trim([FIRST_NAME]))
+                    & "|"
+                    & Text.Proper(Text.Trim(Text.Upper("UNABLE_TO_SEND_REASON")))),
 
     // ============================================================
-    // 9. CREATE RECORD ID
+    // 10. CREATE RECORD ID
     // ============================================================
     AddRecordID =
         Table.AddColumn(
@@ -227,7 +235,7 @@ let
         ),
 
     // ============================================================
-    // 10. ADD SOURCE AND DOB
+    // 11. ADD SOURCE AND DOB
     // ============================================================
     AddSource =
         Table.AddColumn(
@@ -246,7 +254,7 @@ let
         ),
 
     // ============================================================
-    // 11. CREATE ISSUE TYPE
+    // 12. CREATE ISSUE TYPE
     // ============================================================
     AddIssue =
         Table.AddColumn(
@@ -264,28 +272,22 @@ let
         ),
 
     // ============================================================
-    // 12. SELECT OUTPUT COLUMNS
+    // 13. CREATE ISSUE TYPE
     // ============================================================
-    Select =
-        Table.SelectColumns(
+    ChangeColumnNames =
+        Table.RenameColumns(
             AddIssue,
             {
-                "RecordID",
-                "MasterKey",
-                "PanelID",
-                "Doctor",
-                "PatientID",
-                "OriginalPHN",
-                "PHNValidation",
-                "Source",
-                "ReportDate",
-                "LAST_NAME",
-                "FIRST_NAME",
-                "DOB",
-                "IssueType",
-                "UNABLE_TO_SEND_REASON",
-                "SourceFileName"
+                {"LAST_NAME", "LastName"},
+                {"FIRST_NAME", "FirstName"},
+                {"UNABLE_TO_SEND_REASON", "UnableToSendReason"}
             }
-        )
+        ),
+
+    // ============================================================
+    // 14. SELECT OUTPUT COLUMNS
+    // ============================================================
+    Select =
+        Table.SelectColumns(ChangeColumnNames,{"LastName", "FirstName", "UnableToSendReason", "PanelID", "Doctor", "ReportDate", "SourceFileName", "PatientID", "MasterKey", "RecordID", "Source", "DOB", "IssueType"})
 in
     Select

@@ -1,26 +1,35 @@
 let
+    // ============================================================
+    // 1. CPAR HISTORY
+    // ============================================================
     CPARHistory =
-        Table.RenameColumns(
-            Table.SelectColumns(
-                Standardize_CPAR,
-                {
-                    "MasterKey",
-                    "PanelID",
-                    "Doctor",
-                    "PatientID",
-                    "ReportDate",
-                    "LAST_NAME",
-                    "FIRST_NAME",
-                    "DOB"
-                }
+        Table.AddColumn(
+            Table.RenameColumns(
+                Table.SelectColumns(
+                    Standardize_CPAR,
+                    {
+                        "MasterKey",
+                        "PanelID",
+                        "Doctor",
+                        "PatientID",
+                        "ReportDate",
+                        "LastName",
+                        "FirstName",
+                        "DOB",
+                        "UNABLE_TO_SEND_REASON"
+                    },
+                    MissingField.UseNull
+                ),
+                {{"ReportDate", "EventDate"}}
             ),
-            {
-                {"ReportDate", "EventDate"},
-                {"LAST_NAME", "LastName"},
-                {"FIRST_NAME", "FirstName"}
-            }
+            "SourcePriority",
+            each 1,
+            Int64.Type
         ),
 
+    // ============================================================
+    // 2. DEMOGRAPHIC MISMATCH HISTORY
+    // ============================================================
     DemoOK =
         Table.SelectRows(
             Standardize_Demographic_Mismatch,
@@ -28,20 +37,36 @@ let
         ),
 
     DemoHistory =
-        Table.SelectColumns(
-            DemoOK,
-            {
-                "MasterKey",
-                "PanelID",
-                "Doctor",
-                "PatientID",
-                "EventDate",
-                "LastName",
-                "FirstName",
-                "DOB"
-            }
+        Table.AddColumn(
+            Table.SelectColumns(
+                DemoOK,
+                {
+                    "MasterKey",
+                    "PanelID",
+                    "Doctor",
+                    "PatientID",
+                    "Alberta Registry Patient Id",
+                    "EventDate",
+                    "LastName",
+                    "Alberta Registry Patient Last Name",
+                    "FirstName",
+                    "Alberta Registry Patient First Name",
+                    "Panel Gender",
+                    "Alberta Registry Gender",
+                    "DOB",
+                    "Alberta Registry Date Of Birth",
+                    "Date Of Death"
+                },
+                MissingField.UseNull
+            ),
+            "SourcePriority",
+            each 2,
+            Int64.Type
         ),
 
+    // ============================================================
+    // 3. COMBINE HISTORY
+    // ============================================================
     History =
         Table.Combine(
             {
@@ -50,57 +75,107 @@ let
             }
         ),
 
+    // ============================================================
+    // 4. DECLARE COLUMNS TO PRESERVE
+    // ============================================================
+    DetailColumns =
+        {
+            "PanelID",
+            "Doctor",
+            "PatientID",
+            "EventDate",
+            "LastName",
+            "FirstName",
+            "DOB",
+            "UNABLE_TO_SEND_REASON",
+            "Alberta Registry Patient Id",
+            "Alberta Registry Patient Last Name",
+            "Alberta Registry Patient First Name",
+            "Panel Gender",
+            "Alberta Registry Gender",
+            "Alberta Registry Date Of Birth",
+            "Date Of Death"
+        },
+
+    // ============================================================
+    // 5. FIND OLDEST RECORD FOR EACH MASTERKEY
+    // ============================================================
     FirstSeen =
         Table.Group(
             History,
-            {
-                "MasterKey",
-                "PanelID",
-                "Doctor",
-                "PatientID"
-            },
+            {"MasterKey"},
             {
                 {
-                    "FirstSeenDate",
-                    each
-                        try
-                            List.Min(
-                                List.RemoveNulls([EventDate])
-                            )
-                        otherwise
-                            null,
-                    type nullable date
-                },
-                {
-                    "LastName",
-                    each
-                        try List.First(List.RemoveNulls([LastName]))
-                        otherwise null,
-                    type nullable text
-                },
-                {
-                    "FirstName",
-                    each
-                        try List.First(List.RemoveNulls([FirstName]))
-                        otherwise null,
-                    type nullable text
-                },
-                {
-                    "DOB",
-                    each
-                        try List.First(List.RemoveNulls([DOB]))
-                        otherwise null,
-                    type nullable date
+                    "OldestRecord",
+                    (groupTable as table) as record =>
+                        let
+                            DatedRecords =
+                                Table.SelectRows(
+                                    groupTable,
+                                    each [EventDate] <> null
+                                ),
+
+                            Candidates =
+                                if Table.IsEmpty(DatedRecords)
+                                then groupTable
+                                else DatedRecords,
+
+                            Sorted =
+                                Table.Sort(
+                                    Candidates,
+                                    {
+                                        {"EventDate", Order.Ascending},
+                                        {"SourcePriority", Order.Ascending}
+                                    }
+                                ),
+
+                            Oldest =
+                                Sorted{0},
+
+                            SelectedDetails =
+                                Record.SelectFields(
+                                    Oldest,
+                                    DetailColumns,
+                                    MissingField.UseNull
+                                ),
+
+                            FirstSeenDate =
+                                try Date.From(Oldest[EventDate])
+                                otherwise null,
+
+                            Result =
+                                Record.AddField(
+                                    SelectedDetails,
+                                    "FirstSeenDate",
+                                    FirstSeenDate
+                                )
+                        in
+                            Result,
+                    type record
                 }
             }
         ),
 
+    // ============================================================
+    // 6. EXPAND OLDEST RECORD
+    // ============================================================
+    ExpandFirstSeen =
+        Table.ExpandRecordColumn(
+            FirstSeen,
+            "OldestRecord",
+            DetailColumns & {"FirstSeenDate"},
+            DetailColumns & {"FirstSeenDate"}
+        ),
+
+    // ============================================================
+    // 7. COLLECT MASTER KEYS
+    // ============================================================
     Keys =
         Table.Distinct(
             Table.Combine(
                 {
                     Table.SelectColumns(
-                        FirstSeen,
+                        ExpandFirstSeen,
                         {"MasterKey"}
                     ),
                     Table.SelectColumns(
@@ -111,11 +186,14 @@ let
             )
         ),
 
+    // ============================================================
+    // 8. JOIN OLDEST RECORDS
+    // ============================================================
     JoinSeen =
         Table.NestedJoin(
             Keys,
             {"MasterKey"},
-            FirstSeen,
+            ExpandFirstSeen,
             {"MasterKey"},
             "Seen",
             JoinKind.LeftOuter
@@ -125,26 +203,13 @@ let
         Table.ExpandTableColumn(
             JoinSeen,
             "Seen",
-            {
-                "PanelID",
-                "Doctor",
-                "PatientID",
-                "FirstSeenDate",
-                "LastName",
-                "FirstName",
-                "DOB"
-            },
-            {
-                "PanelID",
-                "Doctor",
-                "PatientID",
-                "FirstSeenDate",
-                "LastName",
-                "FirstName",
-                "DOB"
-            }
+            DetailColumns & {"FirstSeenDate"},
+            DetailColumns & {"FirstSeenDate"}
         ),
 
+    // ============================================================
+    // 9. JOIN MASTER OVERRIDES
+    // ============================================================
     JoinOverride =
         Table.NestedJoin(
             ExpandSeen,
@@ -175,6 +240,9 @@ let
             }
         ),
 
+    // ============================================================
+    // 10. FILL MISSING PANEL ID
+    // ============================================================
     FillPanel =
         Table.AddColumn(
             ExpandOverride,
@@ -183,9 +251,12 @@ let
                 if [PanelID] <> null
                 then [PanelID]
                 else [OverridePanelID],
-            type text
+            type nullable text
         ),
 
+    // ============================================================
+    // 11. FILL MISSING PATIENT ID
+    // ============================================================
     FillPatient =
         Table.AddColumn(
             FillPanel,
@@ -194,9 +265,12 @@ let
                 if [PatientID] <> null
                 then [PatientID]
                 else [OverridePatientID],
-            type text
+            type nullable text
         ),
 
+    // ============================================================
+    // 12. DOCTOR LOOKUP
+    // ============================================================
     DoctorLookup =
         Table.AddColumn(
             FillPatient,
@@ -215,12 +289,15 @@ let
                                     d[PanelID] = CurrentPanel
                             )
                     in
-                        if Table.RowCount(Match) = 0
+                        if Table.IsEmpty(Match)
                         then null
                         else Match{0}[Doctor],
             type nullable text
         ),
 
+    // ============================================================
+    // 13. EFFECTIVE MASTER ENTRY DATE
+    // ============================================================
     Effective =
         Table.AddColumn(
             DoctorLookup,
@@ -232,6 +309,9 @@ let
             type nullable date
         ),
 
+    // ============================================================
+    // 14. IDENTIFY SOURCE
+    // ============================================================
     AddSource =
         Table.AddColumn(
             Effective,
@@ -243,6 +323,9 @@ let
             type text
         ),
 
+    // ============================================================
+    // 15. SELECT FINAL OUTPUT COLUMNS
+    // ============================================================
     Select =
         Table.SelectColumns(
             AddSource,
@@ -251,16 +334,34 @@ let
                 "PanelID_Final",
                 "Doctor_Final",
                 "PatientID_Final",
+
                 "FirstSeenDate",
                 "OverrideMasterEntryDate",
                 "EffectiveMasterEntryDate",
+
+                "EventDate",
                 "LastName",
                 "FirstName",
                 "DOB",
+
+                "UNABLE_TO_SEND_REASON",
+
+                "Alberta Registry Patient Id",
+                "Alberta Registry Patient Last Name",
+                "Alberta Registry Patient First Name",
+                "Panel Gender",
+                "Alberta Registry Gender",
+                "Alberta Registry Date Of Birth",
+                "Date Of Death",
+
                 "Source"
-            }
+            },
+            MissingField.UseNull
         ),
 
+    // ============================================================
+    // 16. RENAME FINAL OUTPUT COLUMNS
+    // ============================================================
     Rename =
         Table.RenameColumns(
             Select,
@@ -270,5 +371,6 @@ let
                 {"PatientID_Final", "PatientID"}
             }
         )
+
 in
     Rename
